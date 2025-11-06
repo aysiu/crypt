@@ -1,4 +1,4 @@
-include /usr/local/share/luggage/luggage.make
+include luggage/luggage.make
 include config.mk
 USE_PKGBUILD=1
 PB_EXTRA_ARGS+= --info "./Package/PackageInfo"
@@ -77,12 +77,13 @@ pack-checkin: l_Library l_Library_LaunchDaemons build_binary sign_binary
 	@sudo ${CP} build/checkin ${WORK_D}/Library/Crypt/checkin
 	@sudo chown -R root:wheel ${WORK_D}/Library/Crypt
 	@sudo chmod 755 ${WORK_D}/Library/Crypt/checkin
-    @sudo chown -R wesw:wheel ${WORK_D}/payload
+    @sudo chown -R root:wheel ${WORK_D}/payload
 	@sudo ${INSTALL} -m 644 -g wheel -o root Package/com.grahamgilbert.crypt.plist ${WORK_D}/Library/LaunchDaemons
 
 dist: pkg
 	@sudo rm -f Distribution
-	@sudo productbuild --distribution Distribution Crypt-${BUNDLE_VERSION}.pkg
+	@sed "s/replace_version/${PACKAGE_VERSION}/g" Package/Distribution-Template > Distribution
+	@sudo productbuild --distribution Distribution --package-path . --sign "${DEV_INSTALL_CERT}" Crypt-${PACKAGE_VERSION}.pkg
 	@sudo rm -f Crypt.pkg
 	@sudo rm -f Distribution
 
